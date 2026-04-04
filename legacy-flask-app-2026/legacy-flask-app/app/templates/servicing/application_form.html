@@ -1,0 +1,48 @@
+{% extends "servicing/base.html" %}
+{% block title %}New Application{% endblock %}
+{% block content %}
+<h2>Create Application</h2>
+<p class="muted">Use this screen for manual servicing intake and corrections.</p>
+
+<form method="post" class="form-grid">
+  <label>
+    External ID (optional)
+    <input type="text" name="external_id" value="{{ form_values.get('external_id', '') }}" placeholder="Auto-generated if blank">
+  </label>
+  <label>
+    Application Number (optional)
+    <input type="text" name="application_number" value="{{ form_values.get('application_number', '') }}">
+  </label>
+  <label>
+    First Name
+    <input type="text" name="first_name" required value="{{ form_values.get('first_name', '') }}">
+  </label>
+  <label>
+    Last Name
+    <input type="text" name="last_name" required value="{{ form_values.get('last_name', '') }}">
+  </label>
+  <label>
+    Email
+    <input type="email" name="email" required value="{{ form_values.get('email', '') }}">
+  </label>
+  <label>
+    SSN
+    <input type="text" name="ssn" required value="{{ form_values.get('ssn', '') }}" placeholder="123-45-6789">
+  </label>
+  <label>
+    Loan Amount
+    <input type="number" min="1000" step="0.01" name="loan_amount" required value="{{ form_values.get('loan_amount', '') }}">
+  </label>
+  <label>
+    Credit Score
+    <input type="number" min="300" max="850" name="credit_score" required value="{{ form_values.get('credit_score', '') }}">
+  </label>
+  <label>
+    Risk Score (optional)
+    <input type="number" min="0" step="0.1" name="risk_score" value="{{ form_values.get('risk_score', '') }}">
+  </label>
+  <div class="full">
+    <button type="submit">Save Application</button>
+  </div>
+</form>
+{% endblock %}

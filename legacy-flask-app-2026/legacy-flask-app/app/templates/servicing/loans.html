@@ -1,0 +1,48 @@
+{% extends "servicing/base.html" %}
+{% block title %}Loans{% endblock %}
+{% block content %}
+<h2>Loans</h2>
+
+<form class="filters" method="get">
+  <label>
+    Search
+    <input type="text" name="q" value="{{ query_text }}" placeholder="External ID, account number, app ID">
+  </label>
+  <label>
+    Status
+    <select name="status">
+      {% for s in ["ALL", "ACTIVE", "CLOSED", "CHARGED_OFF"] %}
+      <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Apply</button>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>External ID</th>
+      <th>Account #</th>
+      <th>Loan Name</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for loan in loans %}
+    <tr>
+      <td><a href="{{ url_for('ui.loan_detail', external_id=loan.external_id) }}">{{ loan.external_id }}</a></td>
+      <td>{{ loan.loan_account_number }}</td>
+      <td>{{ loan.loan_name }}</td>
+      <td>${{ "%.2f"|format(loan.loan_amount) }}</td>
+      <td>{{ loan.status }}</td>
+      <td>{{ loan.updated_date }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6">No loans matched your filters.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

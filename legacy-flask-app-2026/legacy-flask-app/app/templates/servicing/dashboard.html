@@ -1,0 +1,81 @@
+{% extends "servicing/base.html" %}
+{% block title %}Servicing Dashboard{% endblock %}
+{% block content %}
+<section>
+  <h2>Servicing Dashboard</h2>
+  <div class="cards">
+    <article class="card">
+      <h3>Total Applications</h3>
+      <p>{{ metrics.application_count }}</p>
+    </article>
+    <article class="card">
+      <h3>Approved</h3>
+      <p>{{ metrics.approved_count }}</p>
+    </article>
+    <article class="card">
+      <h3>Booked</h3>
+      <p>{{ metrics.booked_count }}</p>
+    </article>
+    <article class="card">
+      <h3>Total Loans</h3>
+      <p>{{ metrics.loan_count }}</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h3>Recent Applications</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>External ID</th>
+        <th>Application #</th>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in recent_applications %}
+      <tr>
+        <td><a href="{{ url_for('ui.application_detail', external_id=app.external_id) }}">{{ app.external_id }}</a></td>
+        <td>{{ app.application_number }}</td>
+        <td>{{ app.first_name }} {{ app.last_name }}</td>
+        <td>{{ app.application_status }}</td>
+        <td>{{ app.updated_date }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No application records found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h3>Recent Loans</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>External ID</th>
+        <th>Loan Account #</th>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for loan in recent_loans %}
+      <tr>
+        <td><a href="{{ url_for('ui.loan_detail', external_id=loan.external_id) }}">{{ loan.external_id }}</a></td>
+        <td>{{ loan.loan_account_number }}</td>
+        <td>{{ loan.loan_name }}</td>
+        <td>{{ loan.status }}</td>
+        <td>{{ loan.updated_date }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No loan records found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

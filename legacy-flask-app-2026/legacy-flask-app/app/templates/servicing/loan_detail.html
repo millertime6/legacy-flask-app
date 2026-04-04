@@ -1,0 +1,23 @@
+{% extends "servicing/base.html" %}
+{% block title %}Loan {{ loan.external_id }}{% endblock %}
+{% block content %}
+<section class="header-row">
+  <h2>Loan {{ loan.external_id }}</h2>
+  <a class="button secondary" href="{{ url_for('ui.list_loans') }}">Back to Loans</a>
+</section>
+
+<article class="panel">
+  <dl>
+    <dt>Loan Account Number</dt><dd>{{ loan.loan_account_number }}</dd>
+    <dt>Loan Name</dt><dd>{{ loan.loan_name }}</dd>
+    <dt>Amount</dt><dd>${{ "%.2f"|format(loan.loan_amount) }}</dd>
+    <dt>Interest Rate</dt><dd>{{ loan.interest_rate }}%</dd>
+    <dt>Monthly Payment</dt><dd>${{ "%.2f"|format(loan.monthly_payment) }}</dd>
+    <dt>Term Months</dt><dd>{{ loan.term_months }}</dd>
+    <dt>Status</dt><dd>{{ loan.status }}</dd>
+    <dt>Payment Method</dt><dd>{{ loan.payment_method }}</dd>
+    <dt>Application External ID</dt><dd>{{ loan.application_external_id or "N/A" }}</dd>
+    <dt>Last Updated</dt><dd>{{ loan.updated_date }}</dd>
+  </dl>
+</article>
+{% endblock %}

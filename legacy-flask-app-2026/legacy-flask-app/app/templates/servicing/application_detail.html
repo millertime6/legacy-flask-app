@@ -1,0 +1,65 @@
+{% extends "servicing/base.html" %}
+{% block title %}Application {{ application.external_id }}{% endblock %}
+{% block content %}
+<section class="header-row">
+  <h2>Application {{ application.external_id }}</h2>
+  <a class="button secondary" href="{{ url_for('ui.list_applications') }}">Back to Applications</a>
+</section>
+
+<div class="detail-grid">
+  <article class="panel">
+    <h3>Application Data</h3>
+    <dl>
+      <dt>Application #</dt><dd>{{ application.application_number }}</dd>
+      <dt>Status</dt><dd>{{ application.application_status }}</dd>
+      <dt>Loan Amount</dt><dd>${{ "%.2f"|format(application.loan_amount) }}</dd>
+      <dt>Credit Score</dt><dd>{{ application.credit_score }}</dd>
+      <dt>Risk Score</dt><dd>{{ application.risk_score }}</dd>
+      <dt>Approval Date</dt><dd>{{ application.approval_date or "N/A" }}</dd>
+    </dl>
+  </article>
+  <article class="panel">
+    <h3>Applicant Data</h3>
+    <dl>
+      <dt>Name</dt><dd>{{ application.first_name }} {{ application.last_name }}</dd>
+      <dt>Email</dt><dd>{{ application.email }}</dd>
+      <dt>SSN</dt><dd>{{ masked_ssn }}</dd>
+      <dt>Updated</dt><dd>{{ application.updated_date }}</dd>
+    </dl>
+  </article>
+</div>
+
+<section class="panel">
+  <h3>Servicing Actions</h3>
+  <div class="actions">
+    {% if application.application_status in ["SUBMITTED", "IN_REVIEW"] %}
+    <form method="post" action="{{ url_for('ui.decision_action', external_id=application.external_id) }}">
+      <input type="hidden" name="decision" value="APPROVED">
+      <button type="submit">Approve</button>
+    </form>
+    <form method="post" action="{{ url_for('ui.decision_action', external_id=application.external_id) }}">
+      <input type="hidden" name="decision" value="DENIED">
+      <button class="danger" type="submit">Deny</button>
+    </form>
+    {% endif %}
+
+    {% if application.application_status == "APPROVED" %}
+    <form method="post" action="{{ url_for('ui.book_action', external_id=application.external_id) }}">
+      <button type="submit">Book Loan</button>
+    </form>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel">
+  <h3>Booked Loan</h3>
+  {% if booked_loan %}
+    <p>
+      <a href="{{ url_for('ui.loan_detail', external_id=booked_loan.external_id) }}">{{ booked_loan.external_id }}</a>
+      | {{ booked_loan.loan_account_number }} | {{ booked_loan.status }}
+    </p>
+  {% else %}
+    <p class="muted">No loan has been booked for this application.</p>
+  {% endif %}
+</section>
+{% endblock %}

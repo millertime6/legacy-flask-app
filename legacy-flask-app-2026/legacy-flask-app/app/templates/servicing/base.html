@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Legacy Servicing{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='servicing.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <h1>Legacy Loan Servicing</h1>
+      <nav class="nav">
+        <a href="{{ url_for('ui.servicing_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('ui.list_applications') }}">Applications</a>
+        <a href="{{ url_for('ui.create_application') }}">New Application</a>
+        <a href="{{ url_for('ui.list_loans') }}">Loans</a>
+        <span class="nav-user">Signed in: {{ session.get('ui_username', 'servicing') }}</span>
+        <form method="post" action="{{ url_for('ui.logout') }}" class="inline-form">
+          <button type="submit" class="link-button">Logout</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <section class="alerts">
+          {% for category, message in messages %}
+            <div class="alert {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

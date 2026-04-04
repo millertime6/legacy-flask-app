@@ -1,0 +1,64 @@
+# Legacy Loan System Simulator (Flask)
+
+## Overview
+This application simulates a legacy loan servicing and application system (similar to GPS/CIM/Goldtrak).
+
+It acts as the **system of record** for:
+- Contacts
+- Loans
+- Applications
+- Activities (calls, comments)
+- Promises to Pay (P2P)
+
+## Purpose
+This system is used to:
+- Generate batch data for downstream systems (Salesforce)
+- Provide APIs for real-time integration (MuleSoft)
+- Simulate real-world legacy constraints and behaviors
+
+## Tech Stack
+- Python
+- Flask
+- SQLAlchemy
+- SQLite (local) / PostgreSQL (optional)
+
+## Core Features
+- CRUD for Contacts, Loans, Applications
+- Activity logging (calls, dispositions)
+- P2P tracking
+- Data export (batch file or API)
+- Basic employee-facing interface
+
+## Project Structure
+
+/app
+/models
+/routes
+/services
+/db
+/run
+/config
+
+## Setup
+
+### Install dependencies
+```bash
+pip install -r requirements.txt
+
+python run.py
+
+python seed.py
+
+Environment Variables
+	•	DATABASE_URL
+	•	SECRET_KEY
+	•	EXPORT_PATH
+
+Integration Points
+	•	Outbound: MuleSoft (batch + API)
+	•	Inbound: Activity updates, applications from Salesforce
+
+Security Considerations
+	•	No real PII or payment data
+	•	Simulated authentication only
+	•	Logs structured for future Splunk ingestion
