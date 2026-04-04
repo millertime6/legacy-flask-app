@@ -141,7 +141,3 @@ Structured JSON logs include:
 SSN data is masked in audit logs.
 
 //url for homepage is http://localhost:5001/servicing
-
-## Repo Migration Check
-
-This line was added to verify edits in the new GitHub repository.
