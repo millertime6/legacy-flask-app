@@ -26,6 +26,8 @@ python scripts/seed_data.py
 PORT=5001 python run/server.py
 ```
 
+Local UI: `http://localhost:5001/login`
+
 ## Auth
 
 All integration endpoints require bearer token auth:
@@ -70,7 +72,7 @@ The servicing UI now requires login:
 ### 1) UPSERT Application
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/applications \
+curl -X POST http://localhost:5001/api/v1/applications \
   -H "Authorization: Bearer dev-integration-token" \
   -H "Content-Type: application/json" \
   -H "X-Correlation-ID: corr-1234" \
@@ -88,7 +90,7 @@ curl -X POST http://localhost:5000/api/v1/applications \
 ### 2) Approve Application
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/applications/A-9001/decision \
+curl -X POST http://localhost:5001/api/v1/applications/A-9001/decision \
   -H "Authorization: Bearer dev-integration-token" \
   -H "Content-Type: application/json" \
   -d '{"decision":"APPROVED"}'
@@ -97,14 +99,14 @@ curl -X POST http://localhost:5000/api/v1/applications/A-9001/decision \
 ### 3) Book Loan
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/applications/A-9001/book-loan \
+curl -X POST http://localhost:5001/api/v1/applications/A-9001/book-loan \
   -H "Authorization: Bearer dev-integration-token"
 ```
 
 ### 4) Create Activity
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/activities \
+curl -X POST http://localhost:5001/api/v1/activities \
   -H "Authorization: Bearer dev-integration-token" \
   -H "Content-Type: application/json" \
   -d '{
@@ -140,4 +142,70 @@ Structured JSON logs include:
 
 SSN data is masked in audit logs.
 
-//url for homepage is http://localhost:5001/servicing
+## Deployment Readiness
+
+This repo is now prepared for AWS deployment:
+
+- `Procfile` for process startup with Gunicorn
+- `wsgi.py` as production app entrypoint
+- `runtime.txt` for Python runtime pinning
+- Postgres driver support in `requirements.txt` (`psycopg[binary]`)
+- Production-aware config in `config/settings.py`
+- Existing `/health` endpoint for load balancer health checks
+
+### Recommended Target
+
+Use **AWS Elastic Beanstalk (Python 3.12)** for the first live dev environment.
+
+### Deploy Steps (Elastic Beanstalk)
+
+```bash
+# 1) Install and configure EB CLI (one-time)
+pip install awsebcli
+eb init -p python-3.12 legacy-flask-app
+
+# 2) Create environment
+eb create legacy-flask-dev
+
+# 3) Set application environment variables
+eb setenv APP_ENV=production DEBUG=false SESSION_COOKIE_SECURE=true \
+  SECRET_KEY=replace-me API_TOKEN=replace-me UI_USERNAME=replace-me UI_PASSWORD=replace-me \
+  DATABASE_URL=replace-with-rds-url
+
+# 4) Deploy
+eb deploy
+eb open
+```
+
+### Environment Variables for AWS
+
+Required:
+
+- `APP_ENV=production`
+- `DEBUG=false`
+- `SECRET_KEY=<strong-random-string>`
+- `API_TOKEN=<integration-token>`
+- `UI_USERNAME=<servicing-login-user>`
+- `UI_PASSWORD=<servicing-login-password>`
+- `DATABASE_URL=<RDS PostgreSQL connection string>`
+
+Optional tuning:
+
+- `SESSION_COOKIE_SECURE=true`
+- `SESSION_COOKIE_SAMESITE=Lax`
+- `GUNICORN_WORKERS=3`
+- `GUNICORN_THREADS=2`
+- `GUNICORN_TIMEOUT=60`
+- `BATCH_EXPORT_DIR=/tmp/exports`
+
+### Database Notes
+
+- For AWS, use **RDS PostgreSQL** (do not use SQLite in live dev).
+- Run seed after first deploy:
+
+```bash
+eb ssh
+source /var/app/venv/*/bin/activate
+cd /var/app/current
+python scripts/seed_data.py --contacts 60 --applications 180 --loans 90 --activities 360 --branches 12
+```
