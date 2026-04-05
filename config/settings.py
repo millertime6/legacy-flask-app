@@ -35,3 +35,10 @@ class Config:
     UI_PASSWORD = os.getenv("UI_PASSWORD", "servicing123")
     API_TOKEN = os.getenv("API_TOKEN", "dev-integration-token")
     BATCH_EXPORT_DIR = os.getenv("BATCH_EXPORT_DIR", str(BASE_DIR / "run" / "exports"))
+
+    # Comma-separated client IPs; empty = no restriction. Exempts /health for load balancers.
+    IP_ALLOWLIST = os.getenv("IP_ALLOWLIST", "").strip()
+    # When true, use the last address in X-Forwarded-For (ALB/ELB); required behind AWS LB.
+    TRUST_PROXY_HEADERS = _env_bool(
+        "TRUST_PROXY_HEADERS", APP_ENV == "production"
+    )

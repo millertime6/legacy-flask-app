@@ -170,7 +170,8 @@ eb create legacy-flask-dev
 # 3) Set application environment variables
 eb setenv APP_ENV=production DEBUG=false SESSION_COOKIE_SECURE=true \
   SECRET_KEY=replace-me API_TOKEN=replace-me UI_USERNAME=replace-me UI_PASSWORD=replace-me \
-  DATABASE_URL=replace-with-rds-url
+  DATABASE_URL=replace-with-rds-url \
+  IP_ALLOWLIST=203.0.113.10 TRUST_PROXY_HEADERS=true
 
 # 4) Deploy
 eb deploy
@@ -197,6 +198,8 @@ Optional tuning:
 - `GUNICORN_THREADS=2`
 - `GUNICORN_TIMEOUT=60`
 - `BATCH_EXPORT_DIR=/tmp/exports`
+- `IP_ALLOWLIST=<comma-separated-ips>` — if set, only those client IPs may use the app (others get 403). **`GET /health` is not restricted** so Elastic Beanstalk / ALB health checks keep working.
+- `TRUST_PROXY_HEADERS=true` — read the client IP from `X-Forwarded-For` (last hop, as appended by AWS ALB). Defaults to **on** when `APP_ENV=production`; set `false` for direct local access without a load balancer.
 
 ### Database Notes
 
