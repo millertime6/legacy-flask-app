@@ -4,3 +4,4 @@ __pycache__/
 legacy.db
 run/exports/
 .env
+logs/
