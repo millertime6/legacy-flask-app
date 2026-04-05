@@ -1,0 +1,55 @@
+# Deploys on push to main. Requires repository secret AWS_ROLE_TO_ASSUME (OIDC IAM role ARN).
+# Edit APPLICATION_NAME / ENVIRONMENT_NAME below if yours differ from the README defaults.
+
+name: Deploy to Elastic Beanstalk
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  APPLICATION_NAME: legacy-flask-app
+  ENVIRONMENT_NAME: legacy-flask-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to Elastic Beanstalk
+        uses: aws-actions/aws-elasticbeanstalk-deploy@v1.0.4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          application-name: ${{ env.APPLICATION_NAME }}
+          environment-name: ${{ env.ENVIRONMENT_NAME }}
+          version-label: legacy-${{ github.sha }}
+          # Matches runtime.txt (Python 3.12). After the environment exists, you may omit this input
+          # to avoid forcing a platform version on every deploy (see action README).
+          solution-stack-name: "64bit Amazon Linux 2023 v4.11.0 running Python 3.12"
+          exclude-patterns: "**/.git/**,**/.github/**,**/.venv/**,**/__pycache__/**,**/*.pyc,**/.env,**/legacy.db,**/run/exports/**"
+          option-settings: |
+            [
+              {
+                "Namespace": "aws:autoscaling:launchconfiguration",
+                "OptionName": "IamInstanceProfile",
+                "Value": "aws-elasticbeanstalk-ec2-role"
+              },
+              {
+                "Namespace": "aws:elasticbeanstalk:environment",
+                "OptionName": "ServiceRole",
+                "Value": "aws-elasticbeanstalk-service-role"
+              }
+            ]
